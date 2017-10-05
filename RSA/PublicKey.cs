@@ -17,11 +17,45 @@ namespace RSA
         {
             this.p = p;
             this.q = q;
+            n = p * q;
+            exponenet();
         }
 
         public int P { get => p; set => p = value; }
         public int Q { get => q; set => q = value; }
         public int N { get => n; set => n = value; }
         public int E { get => e; set => e = value; }
+
+        private void exponenet()
+        {
+            e = 2;
+            int phi = (p - 1) * (q - 1);
+            while (e < phi)
+            {
+                if (gcd(e, phi) == 1)
+                {
+                    break;
+                }
+                else
+                {
+                    e++;
+                }
+            }
+        }
+
+        private int gcd(int a, int b)
+        {
+            int aux;
+            while (true)
+            {
+                aux = a % b;
+                if (aux == 0)
+                {
+                    return b;
+                }
+                a = b;
+                b = aux;
+            }
+        }
     }
 }

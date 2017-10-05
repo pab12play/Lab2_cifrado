@@ -37,7 +37,7 @@ namespace RSA
                     case "-c":
                         if (args[1].ToLower().Equals("-f"))
                         {
-
+                            cifrar(args[2]);
                         }
                         else
                         {
@@ -54,6 +54,11 @@ namespace RSA
                 Console.WriteLine("Por favor ingrese una opción correcta. Consulte la opción 'help' para ayuda");
             }
             Console.ReadLine();
+        }
+
+        static void cifrar(string file)
+        {
+            PublicKey publicKey = new PublicKey(generatePrime(), generatePrime());
         }
 
         static int generatePrime()
