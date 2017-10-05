@@ -12,6 +12,7 @@ namespace RSA
         int q;
         int n;
         int e;
+        int phi;
 
         public PublicKey(int p, int q)
         {
@@ -25,14 +26,15 @@ namespace RSA
         public int Q { get => q; set => q = value; }
         public int N { get => n; set => n = value; }
         public int E { get => e; set => e = value; }
+        public int Phi { get => phi; set => phi = value; }
 
         private void exponenet()
         {
             e = 2;
-            int phi = (p - 1) * (q - 1);
-            while (e < phi)
+            Phi = (p - 1) * (q - 1);
+            while (e < Phi)
             {
-                if (gcd(e, phi) == 1)
+                if (gcd(e, Phi) == 1)
                 {
                     break;
                 }
