@@ -65,7 +65,7 @@ namespace RSA
             int primo2 = generatePrime(rnd.Next(100, 1000));
             while (primo1 == primo2)
             {
-                primo2 = generatePrime(rnd.Next(10, 100));
+                primo2 = generatePrime(rnd.Next(100, 1000));
             }
             PublicKey publicKey = new PublicKey(primo1,primo2);
             PrivateKey privateKey = new PrivateKey(publicKey.Phi,publicKey.E);
@@ -78,12 +78,10 @@ namespace RSA
             message = "89";
             Console.WriteLine(message);
             BigInteger encrypt = BigInteger.Parse(message);
-            encrypt = BigInteger.Pow(encrypt, publicKey.E);
-            encrypt = encrypt % publicKey.N;
+            encrypt = BigInteger.Pow(encrypt, publicKey.E) % publicKey.N;
             Console.WriteLine(encrypt);
             
-            BigInteger decrypt = BigInteger.Pow(encrypt, (int)privateKey.D);
-            decrypt = decrypt % publicKey.N;
+            BigInteger decrypt = BigInteger.Pow(encrypt, (int)privateKey.D) % publicKey.N;
             Console.WriteLine(decrypt);
             Console.ReadLine();
         }

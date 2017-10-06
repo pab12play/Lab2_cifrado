@@ -19,7 +19,7 @@ namespace RSA
             this.p = p;
             this.q = q;
             n = p * q;
-            exponenet();
+            exponente();
         }
 
         public int P { get => p; set => p = value; }
@@ -28,7 +28,7 @@ namespace RSA
         public int E { get => e; set => e = value; }
         public int Phi { get => phi; set => phi = value; }
 
-        private void exponenet()
+        private void exponente()
         {
             e = 2;
             Phi = (p - 1) * (q - 1);
