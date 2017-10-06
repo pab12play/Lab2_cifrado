@@ -61,29 +61,52 @@ namespace RSA
         static void cifrar(string file)
         {
             Random rnd = new Random();
-            int primo1 = generatePrime(rnd.Next(100, 1000));
-            int primo2 = generatePrime(rnd.Next(100, 1000));
+            int primo1 = generatePrime(rnd.Next(10, 100));
+            int primo2 = generatePrime(rnd.Next(10, 100));
             while (primo1 == primo2)
             {
-                primo2 = generatePrime(rnd.Next(100, 1000));
+                primo2 = generatePrime(rnd.Next(10, 100));
             }
-            PublicKey publicKey = new PublicKey(primo1,primo2);
-            PrivateKey privateKey = new PrivateKey(publicKey.Phi,publicKey.E);
+            PublicKey publicKey = new PublicKey(primo1, primo2);
+            PrivateKey privateKey = new PrivateKey(publicKey.Phi, publicKey.E, publicKey.N);
             byte[] text = File.ReadAllBytes(file);
             string message = "";
-            foreach(byte b in text)
+            foreach (byte b in text)
             {
-                message = message + b.ToString().PadLeft(3, '0');
+                double letra = Math.Pow(b, publicKey.E) % publicKey.N;
+                message = message + letra + (char)3;
             }
-            message = "89";
             Console.WriteLine(message);
-            BigInteger encrypt = BigInteger.Parse(message);
-            encrypt = BigInteger.Pow(encrypt, publicKey.E) % publicKey.N;
-            Console.WriteLine(encrypt);
-            
-            BigInteger decrypt = BigInteger.Pow(encrypt, (int)privateKey.D) % publicKey.N;
-            Console.WriteLine(decrypt);
+            File.WriteAllText(Path.GetFileNameWithoutExtension(file) + ".cif", message);
+            int intValue;
+            byte[] intBytes = BitConverter.GetBytes(100000000);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(intBytes);
+            byte[] result = intBytes;
+            File.WriteAllBytes("hola.txt", result);
+            decifrar(Path.GetFileNameWithoutExtension(file) + ".cif", privateKey);
             Console.ReadLine();
+        }
+
+        static void decifrar(string file,PrivateKey privateKey)
+        {
+            string text = File.ReadAllText(file);
+            string message = "";
+            string temp = "";
+            foreach (char b in text)
+            {
+                if (b == (char)3)
+                {
+                    BigInteger decrypt = BigInteger.Pow(BigInteger.Parse(temp), privateKey.D) % privateKey.N;
+                    message = message + (char)decrypt;
+                    temp = "";
+                }
+                else
+                {
+                    temp = temp + b;
+                }
+            }
+            Console.WriteLine(message);
         }
 
         static int generatePrime(int number)

@@ -19,6 +19,7 @@ namespace RSA
             this.p = p;
             this.q = q;
             n = p * q;
+            phi = (p - 1) * (q - 1);
             exponente();
         }
 
@@ -31,10 +32,9 @@ namespace RSA
         private void exponente()
         {
             e = 2;
-            Phi = (p - 1) * (q - 1);
-            while (e < Phi)
+            while (e < n)
             {
-                if (gcd(e, Phi) == 1)
+                if (gcd(e, phi) == 1)
                 {
                     break;
                 }

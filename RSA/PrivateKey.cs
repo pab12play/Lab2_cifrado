@@ -8,22 +8,40 @@ namespace RSA
 {
     class PrivateKey
     {
+        int n;
         int phi;
-        double d;
-        int k;
+        int d;
         int e;
 
-        public PrivateKey(int phi, int e)
+        public PrivateKey(int phi, int e,int n)
         {
-            this.Phi = phi;
-            this.E = e;
-            k = 2;
-            D = (1 + (k * phi)) / e;
+            this.n = n;
+            this.phi = phi;
+            this.e = e;
+            d = MultiplicativeInverse(e, phi);
+        }
+
+        public static int MultiplicativeInverse(int e, int fi)
+        {
+            double result;
+            int k = 1;
+            while (true)
+            {
+                result = (1 + (k * fi)) / (double)e;
+                if ((Math.Round(result, 5) % 1) == 0) //integer
+                {
+                    return (int)result;
+                }
+                else
+                {
+                    k++;
+                }
+            }
         }
 
         public int Phi { get => phi; set => phi = value; }
         public int E { get => e; set => e = value; }
-        public int K { get => k; set => k = value; }
-        public double D { get => d; set => d = value; }
+        public int D { get => d; set => d = value; }
+        public int N { get => n; set => n = value; }
     }
 }
