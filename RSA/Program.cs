@@ -28,7 +28,7 @@ namespace RSA
                     case "-d":
                         if (args[1].ToLower().Equals("-f"))
                         {
-
+                            decifrar(args[2]);
                         }
                         else
                         {
@@ -54,7 +54,6 @@ namespace RSA
             {
                 Console.WriteLine("Por favor ingrese una opción correcta. Consulte la opción 'help' para ayuda");
             }
-            Console.ReadLine();
         }
 
         static void cifrar(string file)
@@ -79,12 +78,16 @@ namespace RSA
                 message.AddRange(intBytes);
             }
             File.WriteAllBytes(Path.GetFileNameWithoutExtension(file) + ".cif", message.ToArray());
-            decifrar(Path.GetFileNameWithoutExtension(file) + ".cif", privateKey);
-            Console.ReadLine();
+            string llavePublica = publicKey.E + "\n" + publicKey.N;
+            string llavePrivada = privateKey.D + "\n" + privateKey.N;
+            File.WriteAllText("llavePublica.key", llavePublica);
+            File.WriteAllText("llavePrivada.key", llavePrivada);
         }
 
-        static void decifrar(string file,PrivateKey privateKey)
+        static void decifrar(string file)
         {
+            string[] llavePrivada = File.ReadLines("llavePrivada.Key").ToArray();
+            PrivateKey privateKey = new PrivateKey(int.Parse(llavePrivada[1]), int.Parse(llavePrivada[0]));
             byte[] text = File.ReadAllBytes(file);
             string message = "";
             List<byte> temp = new List<byte>();
@@ -107,7 +110,7 @@ namespace RSA
             }
             BigInteger decrypt1 = BigInteger.Pow(BitConverter.ToInt32(temp.ToArray(), 0), privateKey.D) % privateKey.N;
             message = message + (char)decrypt1;
-            Console.WriteLine(message);
+            File.WriteAllText(Path.GetFileNameWithoutExtension(file) + ".txt", message);
         }
 
         static int generatePrime(int number)

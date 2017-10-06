@@ -21,6 +21,12 @@ namespace RSA
             d = MultiplicativeInverse(e, phi);
         }
 
+        public PrivateKey(int n, int d)
+        {
+            this.n = n;
+            this.d = d;
+        }
+
         public static int MultiplicativeInverse(int e, int fi)
         {
             double result;
