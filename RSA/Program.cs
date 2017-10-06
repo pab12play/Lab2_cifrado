@@ -12,7 +12,6 @@ namespace RSA
     {
         static void Main(string[] args)
         {
-            args = new string[] {"-c","-f","prueba.txt" };
             if (args.Length == 1 && args[0].ToLower().Equals("help"))
             {
                 Console.WriteLine("Hola");
@@ -70,42 +69,44 @@ namespace RSA
             PublicKey publicKey = new PublicKey(primo1, primo2);
             PrivateKey privateKey = new PrivateKey(publicKey.Phi, publicKey.E, publicKey.N);
             byte[] text = File.ReadAllBytes(file);
-            string message = "";
+            List<byte> message = new List<byte>();
             foreach (byte b in text)
             {
                 double letra = Math.Pow(b, publicKey.E) % publicKey.N;
-                message = message + letra + (char)3;
+                byte[] intBytes = BitConverter.GetBytes((int)letra);
+                if (!BitConverter.IsLittleEndian)
+                    Array.Reverse(intBytes);
+                message.AddRange(intBytes);
             }
-            Console.WriteLine(message);
-            File.WriteAllText(Path.GetFileNameWithoutExtension(file) + ".cif", message);
-            int intValue;
-            byte[] intBytes = BitConverter.GetBytes(100000000);
-            if (BitConverter.IsLittleEndian)
-                Array.Reverse(intBytes);
-            byte[] result = intBytes;
-            File.WriteAllBytes("hola.txt", result);
+            File.WriteAllBytes(Path.GetFileNameWithoutExtension(file) + ".cif", message.ToArray());
             decifrar(Path.GetFileNameWithoutExtension(file) + ".cif", privateKey);
             Console.ReadLine();
         }
 
         static void decifrar(string file,PrivateKey privateKey)
         {
-            string text = File.ReadAllText(file);
+            byte[] text = File.ReadAllBytes(file);
             string message = "";
-            string temp = "";
-            foreach (char b in text)
+            List<byte> temp = new List<byte>();
+            int contador = 0;
+            foreach (byte b in text)
             {
-                if (b == (char)3)
+                if (contador >= 4)
                 {
-                    BigInteger decrypt = BigInteger.Pow(BigInteger.Parse(temp), privateKey.D) % privateKey.N;
+                    BigInteger decrypt = BigInteger.Pow(BitConverter.ToInt32(temp.ToArray(),0), privateKey.D) % privateKey.N;
                     message = message + (char)decrypt;
-                    temp = "";
+                    temp.Clear();
+                    temp.Add(b);
+                    contador = 1;
                 }
                 else
                 {
-                    temp = temp + b;
+                    temp.Add(b);
+                    contador++;
                 }
             }
+            BigInteger decrypt1 = BigInteger.Pow(BitConverter.ToInt32(temp.ToArray(), 0), privateKey.D) % privateKey.N;
+            message = message + (char)decrypt1;
             Console.WriteLine(message);
         }
 
