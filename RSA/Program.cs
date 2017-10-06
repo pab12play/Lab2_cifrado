@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace RSA
 {
@@ -11,6 +12,7 @@ namespace RSA
     {
         static void Main(string[] args)
         {
+            args = new string[] {"-c","-f","prueba.txt" };
             if (args.Length == 1 && args[0].ToLower().Equals("help"))
             {
                 Console.WriteLine("Hola");
@@ -58,13 +60,36 @@ namespace RSA
 
         static void cifrar(string file)
         {
-            PublicKey publicKey = new PublicKey(generatePrime(), generatePrime());
+            Random rnd = new Random();
+            int primo1 = generatePrime(rnd.Next(100, 1000));
+            int primo2 = generatePrime(rnd.Next(100, 1000));
+            while (primo1 == primo2)
+            {
+                primo2 = generatePrime(rnd.Next(10, 100));
+            }
+            PublicKey publicKey = new PublicKey(primo1,primo2);
+            PrivateKey privateKey = new PrivateKey(publicKey.Phi,publicKey.E);
+            byte[] text = File.ReadAllBytes(file);
+            string message = "";
+            foreach(byte b in text)
+            {
+                message = message + b.ToString().PadLeft(3, '0');
+            }
+            message = "89";
+            Console.WriteLine(message);
+            BigInteger encrypt = BigInteger.Parse(message);
+            encrypt = BigInteger.Pow(encrypt, publicKey.E);
+            encrypt = encrypt % publicKey.N;
+            Console.WriteLine(encrypt);
+            
+            BigInteger decrypt = BigInteger.Pow(encrypt, (int)privateKey.D);
+            decrypt = decrypt % publicKey.N;
+            Console.WriteLine(decrypt);
+            Console.ReadLine();
         }
 
-        static int generatePrime()
+        static int generatePrime(int number)
         {
-            Random rnd = new Random();
-            int number = rnd.Next(1000000, 10000000);
             while (!isPrime(number))
             {
                 number = number+1;
