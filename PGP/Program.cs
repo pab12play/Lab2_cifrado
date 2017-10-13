@@ -28,7 +28,7 @@ namespace PGP
                     case "-d":
                         if (args[1].ToLower().Equals("-f"))
                         {
-                            decifrar(args[2]);
+                            
                         }
                         else
                         {
@@ -38,7 +38,11 @@ namespace PGP
                     case "-c":
                         if (args[1].ToLower().Equals("-f"))
                         {
-                            cifrar(args[2]);
+                            string text = File.ReadAllText(args[2]);
+                            string nuevaLlave = RandomString(50);
+                            string textoEncriptado = encriptarAES(text,nuevaLlave,128);
+                            string llaveEncriptada = encriptarRSA(Encoding.ASCII.GetBytes(nuevaLlave));
+                            File.WriteAllText(Path.GetFileNameWithoutExtension(args[2]) + ".cif", llaveEncriptada+"\n"+textoEncriptado);
                         }
                         else
                         {
@@ -186,10 +190,16 @@ namespace PGP
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
             return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
         }
+        
+        static string RandomString(int length)
+        {
+            Random random = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
 
-
-
-        static void encriptarRSA(string file)
+        static string encriptarRSA(byte[] text)
         {
             Random rnd = new Random();
             int primo1 = generatePrime(rnd.Next(10, 100));
@@ -200,7 +210,6 @@ namespace PGP
             }
             PublicKey publicKey = new PublicKey(primo1, primo2);
             PrivateKey privateKey = new PrivateKey(publicKey.Phi, publicKey.E, publicKey.N);
-            byte[] text = File.ReadAllBytes(file);
             List<byte> message = new List<byte>();
             foreach (byte b in text)
             {
@@ -210,11 +219,11 @@ namespace PGP
                     Array.Reverse(intBytes);
                 message.AddRange(intBytes);
             }
-            File.WriteAllBytes(Path.GetFileNameWithoutExtension(file) + ".cif", message.ToArray());
             string llavePublica = publicKey.E + "\n" + publicKey.N;
             string llavePrivada = privateKey.D + "\n" + privateKey.N;
             File.WriteAllText("llavePublica.key", llavePublica);
             File.WriteAllText("llavePrivada.key", llavePrivada);
+            return string.Join("",message);
         }
 
         static void desencriptarRSA(string file)
