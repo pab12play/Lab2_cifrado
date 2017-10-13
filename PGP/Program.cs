@@ -12,6 +12,7 @@ namespace PGP
     {
         static void Main(string[] args)
         {
+            args = new string[] {"-d","-f","Untitled.cif" };
             if (args.Length == 1 && args[0].ToLower().Equals("help"))
             {
                 Console.WriteLine("Hola");
@@ -28,7 +29,12 @@ namespace PGP
                     case "-d":
                         if (args[1].ToLower().Equals("-f"))
                         {
-                            
+                            string[] archivo = File.ReadAllLines(args[2]);
+                            string llaveEncriptada = archivo[0];
+                            string textoEncriptado = archivo[1];
+                            string llaveDesencriptada = desencriptarRSA(Encoding.ASCII.GetBytes(llaveEncriptada));
+                            string textoDesencriptado = desencriptarAES(textoEncriptado, llaveDesencriptada, 128);
+                            File.WriteAllText(Path.GetFileNameWithoutExtension(args[2]) + ".png", textoDesencriptado);
                         }
                         else
                         {
@@ -43,6 +49,7 @@ namespace PGP
                             string textoEncriptado = encriptarAES(text,nuevaLlave,128);
                             string llaveEncriptada = encriptarRSA(Encoding.ASCII.GetBytes(nuevaLlave));
                             File.WriteAllText(Path.GetFileNameWithoutExtension(args[2]) + ".cif", llaveEncriptada+"\n"+textoEncriptado);
+                            Console.WriteLine("Archivos generados: LLavePrivada.key, LLavePublica.key, " + Path.GetFileNameWithoutExtension(args[2]) + ".cif");
                         }
                         else
                         {
@@ -226,11 +233,10 @@ namespace PGP
             return string.Join("",message);
         }
 
-        static void desencriptarRSA(string file)
+        static string desencriptarRSA(byte[] text)
         {
             string[] llavePrivada = File.ReadLines("llavePrivada.Key").ToArray();
             PrivateKey privateKey = new PrivateKey(int.Parse(llavePrivada[1]), int.Parse(llavePrivada[0]));
-            byte[] text = File.ReadAllBytes(file);
             string message = "";
             List<byte> temp = new List<byte>();
             int contador = 0;
@@ -252,7 +258,7 @@ namespace PGP
             }
             BigInteger decrypt1 = BigInteger.Pow(BitConverter.ToInt32(temp.ToArray(), 0), privateKey.D) % privateKey.N;
             message = message + (char)decrypt1;
-            File.WriteAllText(Path.GetFileNameWithoutExtension(file) + ".txt", message);
+            return message;
         }
 
         static int generatePrime(int number)
