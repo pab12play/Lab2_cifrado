@@ -12,8 +12,6 @@ namespace PGP
     {
         static void Main(string[] args)
         {
-            //args = new string[] { "-c", "-f", "prueba.txt" };
-            args = new string[] { "-d", "-f", "prueba.cif" };
             if (args.Length == 1 && args[0].ToLower().Equals("help"))
             {
                 Console.WriteLine("Hola");
@@ -49,7 +47,7 @@ namespace PGP
                         if (args[1].ToLower().Equals("-f"))
                         {
                             string text = File.ReadAllText(args[2]);
-                            string nuevaLlave = "llave";
+                            string nuevaLlave = RandomString(25);
                             string textoEncriptado = encriptarAES(text,nuevaLlave,256);
                             byte[] llaveEncriptada = encriptarRSA(Encoding.ASCII.GetBytes(nuevaLlave));
                             List<byte> escribir = new List<byte>();
